@@ -9,7 +9,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const logger = require('./utils/logger');
-const router = require('./routes/router');
 const exampleData = require('../../data/exampleData.js');
 
 const app = express();
@@ -29,15 +28,10 @@ server.listen(port, () => logger.info(`Server listening on ${port}!`));
 //  Socket.io connection established
 const io = require('socket.io')(server);
 //  Prevent circular dependency by defining routes after exports
-io.on('connection', (socket) => {
-  socket.emit('text', 'Hi Client!');
-  socket.on('getNotifications', (callback) => {  
-    console.log('serving notifications');
-    callback(exampleData);
-  });
-});
+module.exports.io = io;
+module.exports.app = app;
 
-module.exports = { app, io };
+const router = require('./routes/router');
 
 app.use('/api', router);
 
@@ -46,3 +40,4 @@ app.use('/api', router);
 app.get('/*', (req, res) => {
   res.status(200).send('Hello from Pharos server!');
 });
+
