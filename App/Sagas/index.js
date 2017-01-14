@@ -6,20 +6,54 @@ import req from 'superagent'
 import { Actions as NavigationActions } from 'react-native-router-flux';
 
 //actions triggered at the end async event
-import { loadEvents, loginSuccess } from '../Actions'
+import {
+  loginSuccess,
+  loadEvents,
+  updateRegion,
+  updatePosition,
+} from '../Actions'
 
+//----------------- navigator action ---------------------------
+//----------------------------------------------------------
+export const getPositionFromNavigator = () => {
+  return new Promise ((resolve) => {
+     navigator.geolocation.getCurrentPosition (
+      (position) => {
+        console.log('getCurrentPosition in Saga');
+        console.log(position);
+        resolve({
+          position,
+          region: {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,            
+          },
+        }) 
+      },
+      (err) => {console.log('in Saga, getCurrentPosition failed')},
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+    )
+  })
+}
+function* getPosition() {
+  yield take('GET_POSITION');
+  console.log('Saga heard GET_POSITION');
+  const {position, region} = yield call(getPositionFromNavigator);  
+  yield put(updatePosition(position));
+}
 //----------------- REST request ---------------------------
 //----------------------------------------------------------
 
 //helper function for login POST 
-export const loginPostsApi = (username, password) => {
+export const loginPostRequest = (username, password) => {
   const url = 'http://127.0.0.1:8099';
   return req.post(`${url}/api/auth/login`)
     .send({ username, password })
 }
 
 //helper function for signup POST 
-export const signupPostsApi = (username, password, userInfo) => {
+export const signupPostRequest = (username, password, userInfo) => {
   userInfo = userInfo || {firstName: 'John', lastName: 'Appleseed'}
   firstName = userInfo.firstName;
   lastName = userInfo.lastName;
@@ -30,17 +64,20 @@ export const signupPostsApi = (username, password, userInfo) => {
 
 function* login() {
     const { username, password } = yield take('LOGIN_REQUEST')
-    console.log('login in saga');
-    const res = yield call(loginPostsApi, username, password)
+    console.log('login attempt in saga-----------');
+    const {position, region} = yield call(getPositionFromNavigator);     
+    yield put(updatePosition(position));
+    yield put(updateRegion(region));
+    const res = yield call(loginPostRequest, username, password, position)
     console.log('login success----------------')
-    console.log(res.body.token);
-
-    yield put(loginSuccess( username, res.body.token))
+    const token = res.body.token;
+    console.log(token);
+    yield put(loginSuccess(username, token))
 }
 
 function* signup() {
     const { username, password, userInfo } = yield take('SIGNUP_REQUEST')
-    const res = yield call(signupPostsApi, username, password, userInfo)
+    const res = yield call(signupPostRequest, username, password, userInfo)
     yield put(loginSuccess( username, res.body.token))
 }
 //--------------------Socket Events-------------------------
@@ -100,7 +137,6 @@ function* voteEvent (socket) {
     // socket.emit('reportEvent', newEvent);
   }
 }
-
 //---------combine sending and receiving data
 function* handleIO(socket) {
   // yield fork(read, socket);
@@ -114,6 +150,11 @@ function* flow() {
   while (true) {
     let { token } = yield take('SUCCESS');
     const socket = yield call(connectSocket, token);
+    const events = yield call(getNotifications, socket, token);
+    console.log('get events in flow-----------');
+    console.log(events);
+    yield put(loadEvents(events));
+    console.log('finished loading events--------------');    
     NavigationActions.mapScreen();
     const task = yield fork(handleIO, socket);
     let action = yield take('LOGOUT_REQUEST');
@@ -125,7 +166,7 @@ function* flow() {
 //---------export Sagas
 export default function* rootSaga() {
   yield fork(flow);
-  // yield fork(fetchEvents);
+  yield fork(getPosition);
   yield fork(login);
   yield fork(signup);
 }
