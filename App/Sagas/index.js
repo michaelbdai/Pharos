@@ -177,6 +177,8 @@ function* flow() {
   while (true) {
     let { token, userId } = yield take('SUCCESS');
     const socket = yield call(connectSocket, token, userId);
+    const userInfo = yield call(getUserInfo, socket, userId);
+    yield put(saveUserInfo(userInfo));
     const events = yield call(getNotifications, socket, userId);
     yield put(loadEvents(events));
     NavigationActions.mapScreen();

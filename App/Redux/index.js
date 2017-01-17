@@ -8,7 +8,7 @@ const defaultState = {
   newEvent: {
     category: 'waitTime',
     description: 'Long wait time',
-    event: 'evantA'
+    event: 'evantA',
   },
   events: [
     {
@@ -62,11 +62,7 @@ const initialState = {
     latitudeDelta: 100,
     longitudeDelta: 100,
   },
-  userInfo: {
-    firstName: '',
-    lastName: '',
-    email: '',
-  },
+  userInfo: {},
   username: '',
   events: defaultState.events,
   token: '',
@@ -109,14 +105,6 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         events: action.events,
-      };
-    case 'FETCH_USER_INFO':
-      return {
-        ...state,
-        userId: action.userId,
-        username: action.username, // Uncommented to build user profile
-        // userInterests: action.userInterests, // TODO: Decide on naming conventions
-        userInfo: action.userInfo,
       };
     case 'UPDATE_USER_INFO':
       return {
