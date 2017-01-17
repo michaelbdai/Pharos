@@ -35,14 +35,19 @@ export const fetchEvents = (token, userLocation) => ({
   token,
   userLocation,
 });
-export const fetchUserInfo = (username, token, firstName, lastName) => ({
+export const fetchUserInfo = userId => ({
   type: 'FETCH_USER_INFO',
-  username: this.state.username,
-  token,
-  firstName,
-  lastName,
+  userId,
   // userInterests, //TODO: decide on naming conventions
 });
+export const saveUserInfo = userInfo => {
+  console.log('in redux action');
+  console.log(userInfo);
+  return {
+    type: 'SAVE_USER_INFO',
+    userInfo,
+  }
+};
 export const updateUserInfo = (username, token) => ({
   type: 'UPDATE_USER_INFO',
   username,
@@ -83,7 +88,7 @@ export const loginSuccess = (username, token, userId) => {
     type: 'SUCCESS',
     username,
     token,
-    userId
+    userId,
   };
 };
 

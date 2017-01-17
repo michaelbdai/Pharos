@@ -16,6 +16,7 @@ import {
   loadEvents,
   updateRegion,
   updatePosition,
+  saveUserInfo,
 } from '../Actions'
 
 //----------------- navigator action ---------------------------
@@ -125,6 +126,23 @@ function* fetchEvents(socket) {
     yield put(loadEvents(events));
   }
 }
+function getUserInfo(socket, userId) {
+  return new Promise((resolve, reject) => {
+    socket.emit('getUserInfo', userId, (userInfo) => {
+      console.log('socket in saga -----------------');
+      console.log(userInfo);
+      resolve(userInfo);
+    })
+  })
+}
+
+function* fetchUserInfo(socket) {
+  while (true) {
+    const { userId } = yield take('FETCH_USER_INFO');
+    const userInfo = yield call(getUserInfo, socket, userId);
+    yield put(saveUserInfo(userInfo));
+  }
+}
 // ---------Send event data to socket
 function* reportEvent(socket) {
   while (true) {
@@ -151,6 +169,7 @@ function* handleIO(socket) {
   yield fork(fetchEvents, socket);
   yield fork(reportEvent, socket);
   yield fork(voteEvent, socket);
+  yield fork(fetchUserInfo, socket);
 }
 
 // ---------Define flow of socket

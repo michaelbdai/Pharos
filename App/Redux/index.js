@@ -62,9 +62,12 @@ const initialState = {
     latitudeDelta: 100,
     longitudeDelta: 100,
   },
-  userName: '',
-  firstName: '',
-  lastName: '',
+  userInfo: {
+    firstName: '',
+    lastName: '',
+    email: '',
+  },
+  username: '',
   events: defaultState.events,
   token: '',
   watchID: '',
@@ -101,27 +104,33 @@ const rootReducer = (state = initialState, action) => {
         ...state,
         events: action.events,
         // token: action.token
-      }
+      };
     case 'STATE_VOTE_EVENT':
       return {
         ...state,
-        events: action.events
-      }
+        events: action.events,
+      };
     case 'FETCH_USER_INFO':
       return {
         ...state,
+        userId: action.userId,
         username: action.username, // Uncommented to build user profile
         // userInterests: action.userInterests, // TODO: Decide on naming conventions
-        token: action.token,
-        firstName: action.firstName,
-        lastName: action.lastName,
+        userInfo: action.userInfo,
       };
     case 'UPDATE_USER_INFO':
       return {
         ...state,
-        username: action.username,
-        token: action.token,
+        userId: action.userId,
       };
+    case 'SAVE_USER_INFO':
+      console.log('in reducer -----------------');
+      console.log(action.userInfo);
+      return {
+        ...state,
+        userInfo: action.userInfo,
+      };
+
     case 'FETCH_CATEGORIES' :
       return {
         ...state,

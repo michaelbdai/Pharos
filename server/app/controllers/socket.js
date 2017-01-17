@@ -23,11 +23,23 @@ const insertNotification = (event) => {
   return new Promise((resolve) => {
     resolve(rooms, event);
   });
-}
+};
 const setUserConfigurations = (event) => {
   console.log('setUserConfigurations');
-}
-//=========================================================
+};
+
+const getUserInfoFromDB = (userId) => {
+  // console.log('userInfo');
+  return new Promise((resolve) => {
+    resolve({
+      firstName: 'borat',
+      lastName: 'masdfsda',
+      email: 'borat@gmail.com',
+    });
+  });
+};
+
+// =========================================================
 
 
 module.exports = (io) => {
@@ -48,10 +60,16 @@ module.exports = (io) => {
       socket.join(roomName);
       rooms.push(roomName);
 
-      socket.on('getNotifications', (userID, callback) => {
-        getNotificationsFromDB(userID)
+      socket.on('getNotifications', (userId, callback) => {
+        getNotificationsFromDB(userId)
         .then((notifications) => {
           callback(notifications);
+        });
+      });
+      socket.on('getUserInfo', (userId, callback) => {
+        getUserInfoFromDB(userId)
+        .then((info) => {
+          callback(info);
         });
       });
 

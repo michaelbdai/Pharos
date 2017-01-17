@@ -10,7 +10,7 @@ import NavigationDrawer from './NavigationDrawer';
 import MapScreen from '../Containers/MapScreen';
 import LoginScreen from '../Containers/LoginScreen';
 import ReportEventScreen from '../Containers/ReportEventScreen';
-import CategoriesList from '../Containers/CategoriesList';
+// import CategoriesList from '../Containers/CategoriesList';
 import UserProfilePage from '../Containers/UserProfilePage';
 import SignUpPage from '../Containers/SignUpPage';
 import UpdateProfilePage from '../Containers/UpdateProfilePage';
@@ -52,10 +52,10 @@ class NavigationRouter extends Component {
               title="Sign-Up"
             />
             <Scene
-              // initial
-              key="categoriesList"
-              component={CategoriesList}
-              title="CategoriesList"
+              // // initial
+              // key="categoriesList"
+              // component={CategoriesList}
+              // title="CategoriesList"
             />
             <Scene
               key='reportEventScreen'
@@ -66,7 +66,7 @@ class NavigationRouter extends Component {
               // initial
               key="userProfilePage"
               component={UserProfilePage}
-              title="User Profile Page"
+              title="User Profile"
             />
             <Scene
               // initial
